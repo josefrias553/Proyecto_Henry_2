@@ -1,0 +1,10 @@
+name: dbt_ecommerce_dw
+version: '1.0'
+profile: ecommerce_dw
+
+model-paths: ["M2_V1/dbt_ecommerce_dw/models"]
+analysis-paths: ["M2_V1/analysis"]
+test-paths: ["M2_V1/tests"]
+seed-paths: ["M2_V1/data/raw"]
+target-path: "target"
+clean-targets: ["target", "dbt_modules"]
