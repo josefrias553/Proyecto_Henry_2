@@ -2,7 +2,7 @@ import pandas as pd
 from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import Session
 
-from M2_V1.models import (Usuario, Categoria, Producto, Orden, DetalleOrden, DireccionEnvio, Carrito, MetodoPago, OrdenMetodoPago, ResenaProducto, HistorialPago)
+from M2.models import (Usuario, Categoria, Producto, Orden, DetalleOrden, DireccionEnvio, Carrito, MetodoPago, OrdenMetodoPago, ResenaProducto, HistorialPago)
 
 def show_columns(model):
     mapper = inspect(model)

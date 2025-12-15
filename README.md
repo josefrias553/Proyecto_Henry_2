@@ -1,4 +1,4 @@
-# 🏗️ Proyecto Data Warehouse E-Commerce (M2_V1)
+# 🏗️ Proyecto Data Warehouse E-Commerce (M2)
 
 ## Visión General
 Este proyecto representa una solución de Data Warehouse robusta y escalable diseñada para una plataforma de E-Commerce de alto volumen. Implementa un pipeline ELT (Extract, Load, Transform) completo utilizando **Python** para la ingesta de datos y **dbt (data build tool)** para el modelado dimensional y las transformaciones. La arquitectura sigue las mejores prácticas en Ingeniería de Datos, enfocándose en la modularidad, la calidad de los datos y la reproducibilidad.
