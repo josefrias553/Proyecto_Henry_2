@@ -190,6 +190,7 @@ git status
 
 ## 📂 Estructura del Proyecto
 
+```
 ├── analysis/               # Scripts de análisis ad-hoc y chequeos de calidad
 ├── data/                   # Almacenamiento de datos crudos
 ├── dbt_ecommerce_dw/       # Modelos dbt
@@ -213,5 +214,6 @@ El Data Warehouse está construido bajo un enfoque de **Esquema Estrella**:
 *   **Tablas de Dimensiones (Dimension)**: Proveen contexto (ej., `dim_product`, `dim_customer`, `dim_time`).
 
 Esta estructura asegura un alto rendimiento para consultas analíticas e integración fluida con herramientas de BI como PowerBI, Tableau o Metabase.
+
 
 
