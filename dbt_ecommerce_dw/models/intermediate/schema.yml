@@ -4,7 +4,7 @@ models:
   - name: int_customer
     description: "Vista intermedia de clientes con atributos completos"
     columns:
-      - name: usuario_id
+      - name: customer_id
         tests: [unique, not_null]
       - name: nombre
         tests: [not_null]
@@ -22,7 +22,7 @@ models:
   - name: int_customer_segment
     description: "Vista intermedia de segmentación de clientes según antigüedad"
     columns:
-      - name: usuario_id
+      - name: customer_id
         tests: [not_null]
       - name: segment_code
         tests: [not_null]

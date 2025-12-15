@@ -1,0 +1,8 @@
+sqlalchemy
+psycopg2-binary
+python-dotenv
+bcrypt
+dbt-core
+dbt-postgres
+pandas
+pytest

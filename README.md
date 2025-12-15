@@ -1,143 +1,217 @@
-📘 Proyecto M2_V1 — Data Warehouse para E-Commerce
+# 🏗️ Proyecto Data Warehouse E-Commerce (M2_V1)
 
-Este proyecto implementa un Data Warehouse completo para un sistema de E-Commerce, empleando Python, PostgreSQL, dbt, y un pipeline de carga y transformación totalmente modularizado.
+## Visión General
+Este proyecto representa una solución de Data Warehouse robusta y escalable diseñada para una plataforma de E-Commerce de alto volumen. Implementa un pipeline ELT (Extract, Load, Transform) completo utilizando **Python** para la ingesta de datos y **dbt (data build tool)** para el modelado dimensional y las transformaciones. La arquitectura sigue las mejores prácticas en Ingeniería de Datos, enfocándose en la modularidad, la calidad de los datos y la reproducibilidad.
 
-El objetivo es diseñar un entorno analítico, reproducible y escalable, con buenas prácticas de ingeniería de datos, modelado dimensional y control de calidad.
+## 📐 Arquitectura
+El sistema está diseñado con una arquitectura en capas:
 
-🧱 Estructura General del Proyecto
+1.  **Capa de Ingesta (EL)**: Los loaders basados en Python extraen datos de fuentes crudas (CSV/JSON/API) y los cargan en el Operational Data Store (ODS) de **PostgreSQL**. Esto asegura que se mantenga estrictamente una copia cruda de los datos.
+2.  **Capa de Transformación (T)**: `dbt` gestiona el ciclo de vida de la transformación, promoviendo los datos a través de tres capas clave:
+    *   **Staging**: Vista 1:1 de las tablas fuente con conversión de tipos, renombrado y limpieza ligera.
+    *   **Intermediate**: Joins lógicos, limpieza compleja y aplicación de lógica de negocio.
+    *   **Mart**: Modelos dimensionales finales (Esquema Estrella) optimizados para herramientas de BI y análisis OLAP (tablas `dim_*` y `fact_*`).
+
+## 🗄️ Arquitectura de Base de Datos
+
+El proyecto utiliza **PostgreSQL** con una arquitectura de **dos esquemas** para separar las operaciones transaccionales (OLTP) de las analíticas (OLAP):
+
+### **Esquema `public` - OLTP (Operational Database)**
+**Propósito**: Base de datos operacional que soporta las transacciones del e-commerce en tiempo real.
+
+**Tablas**:
+- `usuarios` - Información de clientes registrados
+- `productos` - Catálogo de productos
+- `categorias` - Categorías de productos
+- `ordenes` - Órdenes de compra
+- `detalleordenes` - Líneas de pedido (ítems por orden)
+- `direccionesenvio` - Direcciones de envío de usuarios
+- `metodospago` - Métodos de pago disponibles
+- `ordenesmetodospago` - Relación orden-método de pago
+- `historialpagos` - Historial de transacciones de pago
+- `resenasproductos` - Reseñas y calificaciones de productos
+- `carrito` - Carrito de compras activo
+
+**Características**:
+- Normalizado (3NF) para evitar redundancia
+- Optimizado para operaciones CRUD (Create, Read, Update, Delete)
+- Alta frecuencia de escrituras y actualizaciones
+- Cargado por Python loaders desde archivos CSV/JSON
+
+### **Esquema `dw` - OLAP (Data Warehouse)**
+**Propósito**: Data Warehouse optimizado para análisis, reportería y business intelligence.
+
+**Dimensiones** (Tablas `dim_*`):
+- `dim_time` - Calendario con atributos fiscales y temporales
+- `dim_customer` - Clientes con historial (SCD2)
+- `dim_customer_segment` - Segmentación de clientes
+- `dim_product` - Productos con historial de cambios (SCD2)
+- `dim_category` - Categorías de productos
+- `dim_address` - Direcciones con historial (SCD2)
+- `dim_payment_method` - Métodos de pago
+- `dim_order_status` - Estados de órdenes
+- `dim_review` - Reseñas de productos
+
+**Hechos** (Tablas `fact_*`):
+- `fact_order` - Órdenes (nivel orden)
+- `fact_order_line` - Líneas de pedido (nivel ítem)
+- `fact_payment` - Pagos y transacciones
+- `fact_inventory_snapshot` - Snapshots diarios de inventario
+- `fact_order_accum` - Ciclo de vida de órdenes (accumulating snapshot)
+- `fact_ventas_agg_daily` - Agregados diarios de ventas
+
+**Características**:
+- Desnormalizado (Star Schema) para consultas rápidas
+- Historial completo con SCD2 en dimensiones críticas
+- Generado y mantenido por transformaciones dbt
+- Optimizado para agregaciones y análisis multidimensional
+
+### **Flujo de Datos**
 ```
-M2_V1/
-├── .venv/                      # Entorno virtual de Python
-├── dbt_packages/               # Paquetes externos utilizados por dbt
-├── logs/
-│   └── dbt.log                 # Log de ejecuciones de dbt
-├── analysis/                   
-│   ├── eda_sqlalchemy.py       # Análisis exploratorio vía SQLAlchemy
-│   └── quality_checks.py       # Validaciones de calidad de datos
-├── data/
-│   └── raw/                    # Datos crudos provenientes del OLTP
-│   dbt_ecommerce_dw/           # Proyecto dbt (detallado más abajo)
-├── docs/                       
-│   ├── Modelo Dimensional para E-Commerce
-│   ├── Documentación y Justificación del Diseño
-│   └── Análisis Exploratorio y Evaluación de Calidad
-├── img/                        # Recursos gráficos para documentación
-├── loaders/                    # Scripts ETL para poblar el OLTP
-│   ├── load_usuarios.py
-│   ├── load_productos.py
-│   ├── load_ordenes.py
-│   ├── load_detalle_ordenes.py
-│   ├── load_carrito.py
-│   ├── load_direcciones_envio.py
-│   ├── load_metodos_pago.py
-│   ├── load_historial_pagos.py
-│   ├── load_ordenes_metodos_pago.py
-│   ├── load_resenas_productos.py
-│   └── load_categorias.py
-├── notebooks/
-│   └── notebook_analysis.ipynb # Análisis exploratorio en Jupyter
-├── SQL/
-│   └── SQL.sql                 # Script SQL complementario
-├── .env                        # Variables de entorno (credenciales/conexión)
-├── config.py                   # Configuración general
-├── db.py                       # Conexión a la base de datos
-├── main.py                     # Ejecución principal del pipeline
-├── models.py                   # Modelos de datos en Python
-├── utils.py                    # Funciones utilitarias
-├── README.md                   # Este archivo
-├── dbt_project.yml             # Configuración del proyecto dbt
-└── package-lock.yml            # Dependencias del entorno
+Fuentes Raw (CSV/JSON)
+        ↓
+[Python Loaders] → Esquema 'public' (ODS)
+        ↓
+[dbt - Staging] → Limpieza y normalización
+        ↓
+[dbt - Intermediate] → Lógica de negocio
+        ↓
+[dbt - Mart] → Esquema 'dw' (Star Schema)
+        ↓
+Herramientas BI (PowerBI, Tableau, Metabase)
 ```
 
-🏗️ Proyecto dbt: dbt_ecommerce_dw
+## 🛠️ Tech Stack
+*   **Orquestación y Scripting**: Python 3.8+
+*   **Data Warehouse / Base de Datos**: PostgreSQL
+*   **Transformación**: dbt Core
+*   **Calidad y Testing**: dbt Tests, Python `unittest`
 
-El corazón del modelado dimensional está en:
+## 🚀 Guía de Inicio
 
-data/dbt_ecommerce_dw/
+### Requisitos Previos
+*   Python 3.8 o superior
+*   Instancia de PostgreSQL en ejecución y accesible
+*   Conocimiento básico de SQL y herramientas CLI
 
-📂 Estructura del proyecto dbt
-1. Staging (models/staging/)
+### Instalación
 
-Lectura directa de las tablas OLTP (public.*)
+1.  **Clonar el repositorio**:
+    ```bash
+    git clone <url-del-repositorio>
+    cd Proyecto_Henry_2_V1
+    ```
 
-Estandarización de nombres, tipos y claves
+2.  **Configurar el entorno**:
+    ```bash
+    python -m venv .venv
+    # Windows
+    .venv\Scripts\activate
+    # Unix/MacOS
+    source .venv/bin/activate
+    ```
 
-Preparación de datos crudos para capas posteriores
+3.  **Instalar dependencias**:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-2. Intermediate (models/intermediate/)
+4.  **Configuración**:
+    *   Copiar `.env.example` a `.env`.
+    *   Actualizar `.env` con tus credenciales de PostgreSQL.
+    *   Asegurar que tu `profiles.yml` para dbt esté configurado correctamente (apuntado por `dbt_project.yml`).
 
-Limpieza avanzada
+## ⚙️ Uso
 
-joins lógicos
+El proyecto utiliza un punto de entrada CLI unificado `main.py` para todas las tareas de ingesta.
 
-normalización y derivación de atributos clave
+### Ingesta de Datos (Loaders)
+Inicializar el esquema de la base de datos y cargar todos los datasets:
+```bash
+python main.py --init-db --load all
+```
 
-manejo de duplicados y cálculos previos de métricas
+Cargar una entidad específica (ej., solo usuarios):
+```bash
+python main.py --load usuarios
+```
 
-3. Mart (models/mart/)
+### Transformaciones dbt
 
-Incluye:
+Ejecutar todos los modelos dbt (staging → intermediate → mart):
+```bash
+dbt run
+```
 
-Dimensiones (mart/dimensions/)
+Ejecutar solo una capa específica:
+```bash
+# Solo staging
+dbt run --select staging
 
-dim_customer
+# Solo intermediate
+dbt run --select intermediate
 
-dim_product
+# Solo mart (dimensiones y hechos)
+dbt run --select mart
+```
 
-dim_category
+Ejecutar un modelo específico:
+```bash
+dbt run --select dim_customer
+dbt run --select fact_order_line
+```
 
-dim_time
+Ejecutar pruebas de calidad de datos:
+```bash
+dbt test
+```
 
-dim_payment_method
+Generar documentación:
+```bash
+dbt docs generate
+dbt docs serve
+```
 
-dim_location
+### Validación para GitHub
 
-entre otras
+Antes de subir el proyecto a GitHub, verificar que los archivos sensibles estén excluidos:
+```bash
+# Verificar estado de git
+git status
 
-Tablas de hechos (mart/facts/)
+# Los siguientes archivos NO deben aparecer:
+# - .env (credenciales)
+# - __pycache__/ (cache de Python)
+# - .venv/ (entorno virtual)
+# - target/ (artifacts de dbt)
+# - dbt_packages/ (paquetes descargados)
+# - logs/ y *.log (archivos de log)
+```
 
-fact_order
+## 📂 Estructura del Proyecto
 
-fact_payment
+├── analysis/               # Scripts de análisis ad-hoc y chequeos de calidad
+├── data/                   # Almacenamiento de datos crudos
+├── dbt_ecommerce_dw/       # Modelos dbt
+│   └── models/             # Lógica SQL para Staging, Intermediate y Marts
+├── dbt_project.yml         # Configuración de dbt
+├── loaders/                # Scripts Python para ingesta de datos (Extract/Load)
+├── docs/                   # Activos de documentación
+├── SQL/                    # Scripts SQL auxiliares
+├── tests/                  # Tests unitarios Python y Tests singulares dbt
+├── main.py                 # Punto de entrada CLI
+├── models.py               # Definiciones ORM de SQLAlchemy
+├── db.py                   # Gestor de conexión a base de datos
+└── utils.py                # Funciones auxiliares
+```
 
-fact_inventory_snapshot
+## 📊 Estrategia de Modelado de Datos
 
-fact_cart_activity
+El Data Warehouse está construido bajo un enfoque de **Esquema Estrella**:
 
-más métricas agregadas para análisis OLAP
+*   **Tablas de Hechos (Fact)**: Capturan procesos de negocio (ej., `fact_orders`, `fact_sales`).
+*   **Tablas de Dimensiones (Dimension)**: Proveen contexto (ej., `dim_product`, `dim_customer`, `dim_time`).
 
-4. Documentación y Tests
-
-schema.yml con:
-
-pruebas de unique, not null, relationships, accepted values
-
-documentación de cada modelo y columna
-
-directorio target/ con modelos compilados y artefactos de ejecución
-
-🔄 Flujo de Trabajo del Pipeline
-1. Carga OLTP
-
-Los scripts en loaders/ poblan las tablas transaccionales (public.*) desde archivos externos o fuentes crudas.
-
-2. Transformación dbt
-
-Se ejecuta:
-
-staging → intermediate → mart
-
-
-Generando un Data Warehouse limpio, documentado y testeado.
-
-3. Análisis
-
-Disponible en:
-
-notebooks/notebook_analysis.ipynb
-
-scripts en analysis/
-
-Incluyen EDA, chequeos de calidad, métricas y validaciones.
+Esta estructura asegura un alto rendimiento para consultas analíticas e integración fluida con herramientas de BI como PowerBI, Tableau o Metabase.
 
 

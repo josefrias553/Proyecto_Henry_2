@@ -5,7 +5,8 @@ with src as (
 ),
 final as (
     select
-        row_number() over(order by segment_code) as segment_sk,
+        {{ dbt_utils.generate_surrogate_key(['customer_id', 'segment_code']) }} as segment_sk,
+        customer_id,
         segment_code,
         case segment_code
             when 'LOYAL' then 'Cliente leal'

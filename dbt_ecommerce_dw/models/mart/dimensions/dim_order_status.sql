@@ -1,4 +1,4 @@
-{{ config(materialized='incremental', unique_key='status_code') }}
+{{ config(materialized='table') }}
 
 with src as (
     select distinct lower(estado) as status_code
@@ -6,11 +6,14 @@ with src as (
 )
 
 select
+    {{ dbt_utils.generate_surrogate_key(['status_code']) }} as order_status_sk,
     src.status_code,
     case src.status_code
-        when 'pendiente' then 'Orden pendiente'
-        when 'procesando' then 'Orden en proceso'
-        when 'completada' then 'Orden completada'
-        else 'Otro estado'
+        when 'pendiente' then 'Pending'
+        when 'procesando' then 'Processing'
+        when 'completada' then 'Completed'
+        when 'enviado' then 'Shipped'
+        when 'entregado' then 'Delivered'
+        else 'Other'
     end as description
 from src

@@ -20,15 +20,9 @@ models:
               arguments:
                 to: ref('dim_time')
                 field: date_sk
-      - name: address_sk
-        tests:
-          - relationships:
-              arguments:
-                to: ref('dim_address')
-                field: address_sk
       - name: total_amount
         tests: [not_null]
-      - name: n_items
+      - name: item_count
         tests: [not_null]
       - name: order_status_sk
         tests:
@@ -64,12 +58,6 @@ models:
               arguments:
                 to: ref('dim_customer')
                 field: customer_sk
-      - name: address_sk
-        tests:
-          - relationships:
-              arguments:
-                to: ref('dim_address')
-                field: address_sk
       - name: date_sk
         tests:
           - relationships:
@@ -185,9 +173,9 @@ models:
               arguments:
                 to: ref('dim_category')
                 field: category_sk
-      - name: cantidad_total
+      - name: total_quantity
         tests: [not_null]
-      - name: ingreso_total
+      - name: total_revenue
         tests: [not_null]
-      - name: numero_ordenes
+      - name: order_count
         tests: [not_null]

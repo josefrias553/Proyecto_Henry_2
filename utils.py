@@ -6,7 +6,7 @@ from pathlib import Path
 def normalize_header(h: str) -> str:
     nf = unicodedata.normalize("NFKD", h)
     s = "".join(c for c in nf if not unicodedata.combining(c))
-    return s.replace("ñ", "n").strip().lower()
+    return s.replace("ñ", "n").replace(" ", "").strip().lower()
 
 def map_row_keys(row):
     return { normalize_header(k): v for k, v in row.items() }

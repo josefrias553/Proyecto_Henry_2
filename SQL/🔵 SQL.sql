@@ -1,3 +1,36 @@
+-- ==========================================
+-- 📊 DATA WAREHOUSE - ESQUEMA DIMENSIONAL
+-- ==========================================
+-- 
+-- PROPÓSITO:
+-- Este script crea la estructura completa del Data Warehouse (OLAP) 
+-- para el sistema de e-commerce en el esquema 'dw'.
+--
+-- ARQUITECTURA:
+-- El proyecto utiliza una arquitectura de dos esquemas:
+--   • ESQUEMA 'public': Tablas transaccionales OLTP (Operational Database)
+--                       Contiene: usuarios, productos, ordenes, pagos, etc.
+--   • ESQUEMA 'dw':     Data Warehouse OLAP (Analytical Database)
+--                       Contiene: dimensiones (dim_*) y hechos (fact_*)
+--
+-- FLUJO DE DATOS:
+-- 1. Python loaders → Cargan datos raw al esquema 'public' (ODS)
+-- 2. dbt (Staging)   → Normaliza datos desde 'public'
+-- 3. dbt (Intermediate) → Aplica lógica de negocio
+-- 4. dbt (Mart)      → Genera tablas dimensionales en esquema 'dw'
+--
+-- MODELO DIMENSIONAL:
+-- Esquema Estrella (Star Schema) con:
+--   • 9 Dimensiones: customer, product, category, address, time,
+--                    payment_method, order_status, customer_segment, review
+--   • 6 Hechos: fact_order, fact_order_line, fact_payment,
+--               fact_inventory_snapshot, fact_order_accum, fact_ventas_agg_daily
+--
+-- ESTRATEGIA SCD:
+--   • SCD2: dim_customer, dim_product, dim_address (historial completo)
+--   • SCD1: dim_category, dim_payment_method, dim_order_status, etc.
+-- ==========================================
+
 CREATE SCHEMA IF NOT EXISTS dw;
 SET search_path = dw, public;
 

@@ -1,25 +1,22 @@
-{{ config(materialized='incremental', unique_key='product_id') }}
+{{ config(materialized='table') }}
 
 with src as (
     select * from {{ ref('int_product') }}
 ),
-dim_category as (
-    select category_id, category_sk
-    from {{ ref('dim_category') }}
-),
-scd as (
+
+final as (
     select
-        p.producto_id as product_id,
-        p.nombre as name,
-        p.descripcion,
-        dc.category_sk,
-        p.categoria_nombre,
-        p.precio as current_price,
-        p.active_flag,
+        {{ dbt_utils.generate_surrogate_key(['producto_id']) }} as product_sk,
+        producto_id as product_id,
+        nombre as name,
+        descripcion as description,
+        categoria_id as category_id,
+        categoria_nombre as category_name,
+        precio as current_price,
         true as current_flag,
-        current_timestamp as eff_from,
-        null as eff_to
-    from src p
-    left join dim_category dc on p.categoria_id = dc.category_id
+        current_timestamp as valid_from,
+        null as valid_to
+    from src
 )
-select * from scd
+
+select * from final

@@ -1,11 +1,12 @@
 import csv
+import logging
 from sqlalchemy import exc
 from datetime import datetime
-from M2_V1.db import SessionLocal
-from M2_V1.models import Carrito, Usuario, Producto
-from M2_V1.utils import map_row_keys, exists_by_unique, get_csv_path
+from db import SessionLocal
+from models import Carrito, Usuario, Producto
+from utils import map_row_keys, exists_by_unique, get_csv_path
 
-CSV_PATH = get_csv_path("7.carrito.csv")
+CSV_PATH = get_csv_path("carrito.csv")
 
 def load_carrito(csv_path=CSV_PATH):
     with SessionLocal() as session:
@@ -60,4 +61,4 @@ def load_carrito(csv_path=CSV_PATH):
             session.rollback()
             raise
 
-        print(f"[Carrito] Inserciones: {created}")
+        logging.info(f"[Carrito] Inserciones: {created}")

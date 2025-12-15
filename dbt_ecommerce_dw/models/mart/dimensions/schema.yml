@@ -23,10 +23,8 @@ models:
   - name: dim_customer
     description: "Dimensión cliente (SCD2) con historial de cambios"
     columns:
-      - name: customer_sk
-        tests: [unique, not_null]
       - name: customer_id
-        tests: [not_null]
+        tests: [unique, not_null]
       - name: nombre
       - name: apellido
       - name: email
@@ -60,19 +58,17 @@ models:
   - name: dim_product
     description: "Dimensión producto (SCD2 parcial)"
     columns:
-      - name: product_sk
-        tests: [unique, not_null]
       - name: product_id
-        tests: [not_null]
+        tests: [unique, not_null]
       - name: name
       - name: description
-      - name: category_sk
+      - name: category_id
         tests:
           - relationships:
               arguments:
                 to: ref('dim_category')
-                field: category_sk
-      - name: active_flag
+                field: category_id
+      # - name: active_flag
       - name: current_price
         tests: [not_null]
       - name: current_flag
@@ -83,20 +79,16 @@ models:
   - name: dim_category
     description: "Dimensión categoría de productos"
     columns:
-      - name: category_sk
-        tests: [unique, not_null]
       - name: category_id
-        tests: [not_null]
+        tests: [unique, not_null]
       - name: name
 
   - name: dim_address
     description: "Dimensión dirección de envío (SCD2)"
     columns:
-      - name: address_sk
-        tests: [unique, not_null]
       - name: address_id
-        tests: [not_null]
-      - name: usuario_id
+        tests: [unique, not_null]
+      - name: customer_id
         tests: [not_null]
       - name: calle
       - name: ciudad
@@ -111,41 +103,35 @@ models:
   - name: dim_payment_method
     description: "Dimensión método de pago (SCD1)"
     columns:
-      - name: payment_method_sk
-        tests: [unique, not_null]
       - name: payment_method_id
-        tests: [not_null]
+        tests: [unique, not_null]
       - name: name
       - name: description
 
   - name: dim_order_status
     description: "Dimensión estado de orden (SCD1)"
     columns:
-      - name: order_status_sk
-        tests: [unique, not_null]
       - name: status_code
-        tests: [not_null]
+        tests: [unique, not_null]
       - name: description
 
   - name: dim_review
     description: "Dimensión reseñas de productos"
     columns:
-      - name: review_sk
-        tests: [unique, not_null]
       - name: review_id
-        tests: [not_null]
-      - name: product_sk
+        tests: [unique, not_null]
+      - name: product_id
         tests:
           - relationships:
               arguments:
                 to: ref('dim_product')
-                field: product_sk
-      - name: customer_sk
+                field: product_id
+      - name: customer_id
         tests:
           - relationships:
               arguments:
                 to: ref('dim_customer')
-                field: customer_sk
+                field: customer_id
       - name: rating
         tests: [not_null]
       - name: comment_length

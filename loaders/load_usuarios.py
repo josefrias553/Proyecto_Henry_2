@@ -1,10 +1,11 @@
 import csv
+import logging
 from sqlalchemy import exc
-from M2_V1.db import SessionLocal
-from M2_V1.models import Usuario
-from M2_V1.utils import map_row_keys, hash_password, exists_by_unique, get_csv_path
+from db import SessionLocal
+from models import Usuario
+from utils import map_row_keys, hash_password, exists_by_unique, get_csv_path
 
-CSV_PATH = get_csv_path("1.Usuarios.csv")
+CSV_PATH = get_csv_path("usuarios.csv")
 
 def load_usuarios(csv_path=CSV_PATH):
     with SessionLocal() as session:
@@ -47,4 +48,4 @@ def load_usuarios(csv_path=CSV_PATH):
             session.rollback()
             raise
 
-        print(f"[Usuarios] Inserciones: {created}")
+        logging.info(f"[Usuarios] Inserciones: {created}")

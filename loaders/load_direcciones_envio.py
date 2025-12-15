@@ -1,10 +1,11 @@
 import csv
+import logging
 from sqlalchemy import exc
-from M2_V1.db import SessionLocal
-from M2_V1.models import DireccionEnvio, Usuario
-from M2_V1.utils import map_row_keys, exists_by_unique, get_csv_path
+from db import SessionLocal
+from models import DireccionEnvio, Usuario
+from utils import map_row_keys, exists_by_unique, get_csv_path
 
-CSV_PATH = get_csv_path("6.direcciones_envio.csv")
+CSV_PATH = get_csv_path("direcciones_envio.csv")
 
 def load_direcciones_envio(csv_path=CSV_PATH):
     with SessionLocal() as session:
@@ -62,4 +63,4 @@ def load_direcciones_envio(csv_path=CSV_PATH):
             session.rollback()
             raise
 
-        print(f"[Direcciones] Inserciones: {created}")
+        logging.info(f"[Direcciones] Inserciones: {created}")

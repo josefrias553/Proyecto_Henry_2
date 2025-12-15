@@ -1,11 +1,12 @@
 import csv
+import logging
 from sqlalchemy import exc
 from decimal import Decimal
-from M2_V1.db import SessionLocal
-from M2_V1.models import Producto, Categoria
-from M2_V1.utils import map_row_keys, exists_by_unique, get_csv_path
+from db import SessionLocal
+from models import Producto, Categoria
+from utils import map_row_keys, exists_by_unique, get_csv_path
 
-CSV_PATH = get_csv_path("3.Productos.csv")
+CSV_PATH = get_csv_path("productos.csv")
 
 def load_productos(csv_path=CSV_PATH):
     with SessionLocal() as session:
@@ -57,4 +58,4 @@ def load_productos(csv_path=CSV_PATH):
             session.rollback()
             raise
 
-        print(f"[Productos] Inserciones: {created}")
+        logging.info(f"[Productos] Inserciones: {created}")

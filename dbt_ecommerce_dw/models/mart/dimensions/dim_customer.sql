@@ -1,4 +1,4 @@
-{{ config(materialized='incremental', unique_key='customer_id') }}
+{{ config(materialized='table') }}
 
 with src as (
     select * from {{ ref('int_customer') }}
@@ -10,15 +10,15 @@ segment as (
 )
 
 select
-    u.customer_id,
-    u.nombre,
-    u.apellido,
-    u.email,
-    u.fecha_registro,
+    {{ dbt_utils.generate_surrogate_key(['src.customer_id']) }} as customer_sk,
+    src.customer_id,
+    src.nombre as first_name,
+    src.apellido as last_name,
+    src.email,
+    src.fecha_registro as created_at,
     s.segment_sk,
     true as current_flag,
-    current_timestamp as eff_from,
-    null as eff_to,
-    null as notes
-from src u
-left join segment s on u.customer_id = s.customer_id
+    current_timestamp as valid_from,
+    null as valid_to
+from src
+left join segment s on src.customer_id = s.customer_id

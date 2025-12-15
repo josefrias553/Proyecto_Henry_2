@@ -1,10 +1,11 @@
 import csv
+import logging
 from sqlalchemy import exc
-from M2_V1.db import SessionLocal
-from M2_V1.models import Categoria
-from M2_V1.utils import map_row_keys, exists_by_unique, get_csv_path
+from db import SessionLocal
+from models import Categoria
+from utils import map_row_keys, exists_by_unique, get_csv_path
 
-CSV_PATH = get_csv_path("2.Categorias.csv")
+CSV_PATH = get_csv_path("categorias.csv")
 
 def load_categorias(csv_path=CSV_PATH):
     with SessionLocal() as session:
@@ -35,4 +36,4 @@ def load_categorias(csv_path=CSV_PATH):
             session.rollback()
             raise
 
-        print(f"[Categorias] Inserciones: {created}")
+        logging.info(f"[Categorias] Inserciones: {created}")

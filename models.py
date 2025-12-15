@@ -1,8 +1,8 @@
-from sqlalchemy import (Column, Integer, String, Text, Numeric, ForeignKey, DateTime, CheckConstraint, UniqueConstraint)
+from sqlalchemy import (Column, Integer, String, Text, Numeric, ForeignKey, DateTime, CheckConstraint, UniqueConstraint, MetaData)
 from sqlalchemy.orm import relationship, declarative_base
 from datetime import datetime
 
-Base = declarative_base()
+Base = declarative_base(metadata=MetaData(schema="public"))
 
 USUARIO_FK = "usuarios.usuario_id"
 PRODUCTO_FK = "productos.producto_id"
