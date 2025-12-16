@@ -172,22 +172,6 @@ dbt docs generate
 dbt docs serve
 ```
 
-### Validación para GitHub
-
-Antes de subir el proyecto a GitHub, verificar que los archivos sensibles estén excluidos:
-```bash
-# Verificar estado de git
-git status
-
-# Los siguientes archivos NO deben aparecer:
-# - .env (credenciales)
-# - __pycache__/ (cache de Python)
-# - .venv/ (entorno virtual)
-# - target/ (artifacts de dbt)
-# - dbt_packages/ (paquetes descargados)
-# - logs/ y *.log (archivos de log)
-```
-
 ## 📂 Estructura del Proyecto
 
 ```
@@ -214,6 +198,7 @@ El Data Warehouse está construido bajo un enfoque de **Esquema Estrella**:
 *   **Tablas de Dimensiones (Dimension)**: Proveen contexto (ej., `dim_product`, `dim_customer`, `dim_time`).
 
 Esta estructura asegura un alto rendimiento para consultas analíticas e integración fluida con herramientas de BI como PowerBI, Tableau o Metabase.
+
 
 
 
